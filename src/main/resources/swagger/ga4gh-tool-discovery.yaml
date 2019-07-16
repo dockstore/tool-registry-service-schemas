@@ -624,6 +624,7 @@ definitions:
       - CWL
       - WDL
       - NFL
+      - SERVICE
   FileWrapper:
     type: object
     description: |
