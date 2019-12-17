@@ -625,6 +625,7 @@ definitions:
       - WDL
       - NFL
       - SERVICE
+      - GXFORMAT2
   FileWrapper:
     type: object
     description: |
