@@ -707,6 +707,8 @@ definitions:
       - CWL
       - WDL
       - NFL
+      - SERVICE
+      - GALAXY
   FileWrapper:
     type: object
     description: >
