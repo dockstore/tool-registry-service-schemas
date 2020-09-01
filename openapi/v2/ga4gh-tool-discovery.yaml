@@ -36,6 +36,8 @@ paths:
       operationId: getServiceInfo
       tags:
         - service-info
+      produces:
+        - application/json
       responses:
         '200':
           description: A successful operation to request the service information about this running service.'
