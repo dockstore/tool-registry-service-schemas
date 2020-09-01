@@ -42,7 +42,7 @@ paths:
         '200':
           description: A successful operation to request the service information about this running service.'
           schema:
-            $ref: '#/definitions/Service'
+            $ref: '#/definitions/TRSService'
   '/tools/{id}':
     get:
       summary: 'List one specific tool, acts as an anchor for self references'
@@ -782,7 +782,7 @@ definitions:
       message:
         type: string
         default: Internal Server Error
-  Service:
+  TRSService:
       # Links to the latest version of service-info. Use a tag once service-info is released instead.
       $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/develop/service-info.yaml#/components/schemas/Service'          
 parameters:
