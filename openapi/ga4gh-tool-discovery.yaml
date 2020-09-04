@@ -155,10 +155,19 @@ paths:
 
             If provided will only return entries with the given alias.
         - name: toolClass
+          enum:
+            - "CommandLineTool"
+            - "Workflow"
           type: string
           in: query
           description: 'Filter tools by the name of the subclass (#/definitions/ToolClass)'
         - name: descriptorType
+          enum:
+            - "CWL"
+            - "WDL"
+            - "NFL"
+            - "SERVICE"
+            - "GALAXY"
           type: string
           in: query
           description: 'Filter tools by the name of the descriptor type (#/definitions/DescriptorType)'
