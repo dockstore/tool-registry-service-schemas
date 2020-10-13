@@ -490,6 +490,10 @@ definitions:
   Checksum:
     type: object
     required: ['checksum', 'type']
+    description: The checksum value and its type
+    example: 
+      - checksum: '77af4d6b9913e693e8d0b4b294fa62ade6054e6b2f1ffb617ac955dd63fb0182' 
+        type: sha256
     properties:
       checksum:
         type: string
