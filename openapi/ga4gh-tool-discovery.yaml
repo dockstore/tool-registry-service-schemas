@@ -5,7 +5,8 @@ info:
     Proposed API for GA4GH (Global Alliance for Genomics & Health) tool
     repositories. A tool consists of a set of container images that are paired
     with a set of documents. Examples of documents include CWL (Common Workflow
-    Language), WDL (Workflow Description Language), NFL (Nextflow), or GXFORMAT2 (Galaxy) that
+    Language), WDL (Workflow Description Language), NFL (Nextflow), or
+    GXFORMAT2 (Galaxy)  or SMK (Snakemake) that
     describe how to use those images and a set of specifications for those
     images (examples are Dockerfiles or Singularity recipes) that describe how
     to reproduce those images in the future. We use the following terminology, a
@@ -168,6 +169,7 @@ paths:
             - "NFL"
             - "SERVICE"
             - "GALAXY"
+            - "SMK"
           type: string
           in: query
           description: 'Filter tools by the name of the descriptor type (#/definitions/DescriptorType)'
@@ -248,8 +250,8 @@ paths:
           description: >-
             The output type of the descriptor. Plain types return the bare
             descriptor while the "non-plain" types return a descriptor wrapped
-            with metadata. Allowable values include "CWL", "WDL", "NFL", "GALAXY",
-            "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY".
+            with metadata. Allowable values include "CWL", "WDL", "NFL", "GALAXY", "SMK",
+            "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY", "PLAIN_SMK".
           type: string
         - name: id
           in: path
@@ -299,7 +301,7 @@ paths:
             underlying implementation to determine which output type to return.
             Plain types return the bare descriptor while the "non-plain" types
             return a descriptor wrapped with metadata. Allowable values are
-            "CWL", "WDL", "NFL", "GALAXY", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY".
+            "CWL", "WDL", "NFL", "GALAXY", "SMK", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY", "PLAIN_SMK".
           type: string
         - name: id
           in: path
@@ -352,7 +354,7 @@ paths:
           in: path
           description: >-
             The type of the underlying descriptor. Allowable values include
-            "CWL", "WDL", "NFL", "GALAXY", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY". For
+            "CWL", "WDL", "NFL", "GALAXY", "SMK", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY", "PLAIN_SMK". For
             example, "CWL" would return an list of ToolTests objects while
             "PLAIN_CWL" would return a bare JSON list with the content of the
             tests.
@@ -401,7 +403,7 @@ paths:
           in: path
           description: >-
             The output type of the descriptor. Examples of allowable values are
-            "CWL", "WDL", "NFL", "GALAXY".
+            "CWL", "WDL", "NFL", "GALAXY", "SMK".
           type: string
         - name: id
           in: path
@@ -740,6 +742,7 @@ definitions:
       - NFL
       - SERVICE
       - GALAXY
+      - SMK
   FileWrapper:
     type: object
     description: >
