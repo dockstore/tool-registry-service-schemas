@@ -617,10 +617,11 @@ definitions:
   DescriptorType:
     type: string
     description: >-
-      The type of descriptor that represents this version of the tool (e.g. CWL,
+      The type of descriptor that represents this version of the tool (e.g. SMK, CWL,
       WDL, or NFL). Note that these files can also include associated Docker/container files 
       and test parameters that further describe a version of a tool
     enum:
+      - SMK
       - CWL
       - WDL
       - NFL
