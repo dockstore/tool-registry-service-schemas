@@ -695,6 +695,7 @@ components:
         size:
           type: integer
           description: Size of the container in bytes.
+          format: int64
         updated:
           type: string
           description: Last time the container was updated.
