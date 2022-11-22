@@ -137,6 +137,9 @@ paths:
           description: Filter tools by the name of the subclass (#/definitions/ToolClass)
           schema:
             type: string
+            enum:
+            - CommandLineTool
+            - Workflow
         - name: descriptorType
           in: query
           description: Filter tools by the name of the descriptor type
