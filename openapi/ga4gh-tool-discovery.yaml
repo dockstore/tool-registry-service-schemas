@@ -5,7 +5,8 @@ info:
     Proposed API for GA4GH (Global Alliance for Genomics & Health) tool
     repositories. A tool consists of a set of container images that are paired
     with a set of documents. Examples of documents include CWL (Common Workflow
-    Language) or WDL (Workflow Description Language) or NFL (Nextflow) that
+    Language), WDL (Workflow Description Language), NFL (Nextflow), or
+    GXFORMAT2 (Galaxy)  or SMK (Snakemake) that
     describe how to use those images and a set of specifications for those
     images (examples are Dockerfiles or Singularity recipes) that describe how
     to reproduce those images in the future. We use the following terminology, a
@@ -30,6 +31,19 @@ tags:
     externalDocs:
       url: https://ga4gh.github.io/tool-registry-service-schemas/Introduction/
 paths:
+  '/service-info':
+    get:
+      summary: 'Show information about this service. It is assumed that removing this endpoint from a URL will result in a valid URL to query against'
+      operationId: getServiceInfo
+      tags:
+        - service-info
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: A successful operation to request the service information about this running service.'
+          schema:
+            $ref: '#/definitions/TRSService'
   '/tools/{id}':
     get:
       summary: 'List one specific tool, acts as an anchor for self references'
@@ -142,9 +156,23 @@ paths:
 
             If provided will only return entries with the given alias.
         - name: toolClass
+          enum:
+            - "CommandLineTool"
+            - "Workflow"
           type: string
           in: query
           description: 'Filter tools by the name of the subclass (#/definitions/ToolClass)'
+        - name: descriptorType
+          enum:
+            - "CWL"
+            - "WDL"
+            - "NFL"
+            - "SERVICE"
+            - "GALAXY"
+            - "SMK"
+          type: string
+          in: query
+          description: 'Filter tools by the name of the descriptor type (#/definitions/DescriptorType)'
         - name: registry
           in: query
           type: string
@@ -212,7 +240,7 @@ paths:
       operationId: toolsIdVersionsVersionIdTypeDescriptorGet
       description: >-
         Returns the descriptor for the specified tool (examples include CWL,
-        WDL, or Nextflow documents).
+        WDL, Nextflow, or Galaxy documents).
       tags:
         - GA4GH
       parameters:
@@ -222,8 +250,8 @@ paths:
           description: >-
             The output type of the descriptor. Plain types return the bare
             descriptor while the "non-plain" types return a descriptor wrapped
-            with metadata. Allowable values include "CWL", "WDL", "NFL",
-            "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL".
+            with metadata. Allowable values include "CWL", "WDL", "NFL", "GALAXY", "SMK",
+            "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY", "PLAIN_SMK".
           type: string
         - name: id
           in: path
@@ -273,7 +301,7 @@ paths:
             underlying implementation to determine which output type to return.
             Plain types return the bare descriptor while the "non-plain" types
             return a descriptor wrapped with metadata. Allowable values are
-            "CWL", "WDL", "NFL", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL".
+            "CWL", "WDL", "NFL", "GALAXY", "SMK", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY", "PLAIN_SMK".
           type: string
         - name: id
           in: path
@@ -326,7 +354,7 @@ paths:
           in: path
           description: >-
             The type of the underlying descriptor. Allowable values include
-            "CWL", "WDL", "NFL", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL". For
+            "CWL", "WDL", "NFL", "GALAXY", "SMK", "PLAIN_CWL", "PLAIN_WDL", "PLAIN_NFL", "PLAIN_GALAXY", "PLAIN_SMK". For
             example, "CWL" would return an list of ToolTests objects while
             "PLAIN_CWL" would return a bare JSON list with the content of the
             tests.
@@ -375,7 +403,7 @@ paths:
           in: path
           description: >-
             The output type of the descriptor. Examples of allowable values are
-            "CWL", "WDL", and "NFL".
+            "CWL", "WDL", "NFL", "GALAXY", "SMK".
           type: string
         - name: id
           in: path
@@ -464,6 +492,10 @@ definitions:
   Checksum:
     type: object
     required: ['checksum', 'type']
+    description: The checksum value and its type
+    example: 
+      - checksum: 77af4d6b9913e693e8d0b4b294fa62ade6054e6b2f1ffb617ac955dd63fb0182 
+        type: sha256
     properties:
       checksum:
         type: string
@@ -674,6 +706,7 @@ definitions:
       size:
         type: integer
         description: Size of the container in bytes.
+        format: int64
       updated:
         type: string
         description: Last time the container was updated.
@@ -685,7 +718,7 @@ definitions:
           A production (immutable) tool version is required to have a hashcode. Not required otherwise, but might be useful to detect changes. 
           This exposes the hashcode for specific image versions to verify that the container version pulled is actually the version that was indexed by the registry.
         example: 
-          - checksum: '77af4d6b9913e693e8d0b4b294fa62ade6054e6b2f1ffb617ac955dd63fb0182' 
+          - checksum: 77af4d6b9913e693e8d0b4b294fa62ade6054e6b2f1ffb617ac955dd63fb0182
             type: sha256
       image_type:
         $ref: '#/definitions/ImageType'
@@ -700,13 +733,16 @@ definitions:
     type: string
     description: >-
       The type of descriptor that represents this version of the tool (e.g. CWL,
-      WDL, or NFL). Note that these files can also include associated
+      WDL, NFL, or GALAXY). Note that these files can also include associated
       Docker/container files  and test parameters that further describe a
       version of a tool.
     enum:
       - CWL
       - WDL
       - NFL
+      - SERVICE
+      - GALAXY
+      - SMK
   FileWrapper:
     type: object
     description: >
@@ -735,8 +771,8 @@ definitions:
         description: >- 
           A production (immutable) tool version is required to have a hashcode. Not required otherwise, but might be useful to detect changes. 
         example:
-          - checksum: ea2a5db69bd20a42976838790bc29294df3af02b
-            type: sha1
+          - checksum: 77af4d6b9913e693e8d0b4b294fa62ade6054e6b2f1ffb617ac955dd63fb0182
+            type: sha256
       url:
         type: string
         description: >-
@@ -763,6 +799,9 @@ definitions:
       message:
         type: string
         default: Internal Server Error
+  TRSService:
+      # Links to the latest version of service-info. Use a tag once service-info is released instead.
+      $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/develop/service-info.yaml#/components/schemas/Service'          
 parameters:
   limit:
     name: limit

@@ -21,8 +21,19 @@ tags:
     externalDocs:
       url: https://ga4gh.github.io/tool-registry-service-schemas/Introduction/
 paths:
-  /service-info:
-    $ref: https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/v1.0.0/service-info.yaml#/paths/~1service-info
+  '/service-info':
+    get:
+      summary: 'Show information about this service. It is assumed that removing this endpoint from a URL will result in a valid URL to query against'
+      operationId: getServiceInfo
+      tags:
+        - service-info
+      responses:
+        '200':
+          description: A successful operation to request the service information about this running service.'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TRSService"
   "/tools/{id}":
     get:
       summary: List one specific tool, acts as an anchor for self references
@@ -126,6 +137,9 @@ paths:
           description: Filter tools by the name of the subclass (#/definitions/ToolClass)
           schema:
             type: string
+            enum:
+            - CommandLineTool
+            - Workflow
         - name: descriptorType
           in: query
           description: Filter tools by the name of the descriptor type
@@ -695,6 +709,7 @@ components:
         size:
           type: integer
           description: Size of the container in bytes.
+          format: int64
         updated:
           type: string
           description: Last time the container was updated.
@@ -730,6 +745,7 @@ components:
         - NFL
         - GALAXY
         - SMK        
+        - SERVICE
     DescriptorTypeVersion:
       type: string
       description: The language version for a given descriptor type. The version should correspond
@@ -807,4 +823,11 @@ components:
         message:
           type: string
           default: Internal Server Error
-
+    TRSService:
+      type: object
+      # Links to the latest version of service-info. Use a tag once service-info is released instead.
+      $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/v1.0.0/service-info.yaml#/components/schemas/Service'
+    ServiceType:
+      type: object
+      # Links to the latest version of service-info. Use a tag once service-info is released instead.
+      $ref: 'https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/v1.0.0/service-info.yaml#/components/schemas/ServiceType'
