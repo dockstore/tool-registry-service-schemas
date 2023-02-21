@@ -746,7 +746,7 @@ components:
         - GALAXY
         - SMK        
         - SERVICE
-        - IPYNB
+        - JUPYTER
     DescriptorTypeVersion:
       type: string
       description: The language version for a given descriptor type. The version should correspond
@@ -761,13 +761,13 @@ components:
         - NFL
         - GALAXY
         - SMK
-        - IPYNB
+        - JUPYTER
         - PLAIN_CWL
         - PLAIN_WDL
         - PLAIN_NFL
         - PLAIN_GALAXY
         - PLAIN_SMK
-        - PLAIN_IPYNB
+        - PLAIN_JUPYTER
     FileWrapper:
       type: object
       description: >
