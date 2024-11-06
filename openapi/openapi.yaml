@@ -509,6 +509,10 @@ components:
           type: string
           description: Relative path of the file.  A descriptor's path can be used with
             the GA4GH .../{type}/descriptor/{relative_path} endpoint.
+        dockstore_absolute_path:
+          type: string
+          description: Absolute path of the file.  A descriptor's path can be used with
+            zip from toolsIdVersionsVersionIdTypeFilesGet when format=zip is specified
         file_type:
           type: string
           enum:
@@ -814,6 +818,13 @@ components:
               url: https://raw.githubusercontent.com/ICGC-TCGA-PanCancer/pcawg_delly_workflow/ea2a5db69bd20a42976838790bc29294df3af02b/delly_docker/Delly.cwl
             containerfile:
               url: https://raw.githubusercontent.com/ICGC-TCGA-PanCancer/pcawg_delly_workflow/c83478829802b4d36374870843821abe1b625a71/delly_docker/Dockerfile
+        dockstore_self_url:
+          type: string
+          description: Self URL to this file in the toolsIdVersionsVersionIdTypeDescriptorRelativePathGet endpoint
+        dockstore_absolute_path:
+          type: string
+          description: Absolute path of the file.  A descriptor's path can be used with
+            zip from toolsIdVersionsVersionIdTypeFilesGet when format=zip is specified
     Error:
       type: object
       required:
