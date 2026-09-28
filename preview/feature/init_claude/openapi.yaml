@@ -5,27 +5,41 @@ info:
     Proposed API for GA4GH (Global Alliance for Genomics & Health) tool
     repositories. A tool consists of a set of container images that are paired
     with a set of documents. Examples of documents include CWL (Common Workflow
-    Language), WDL (Workflow Description Language), NFL (Nextflow), or GXFORMAT2
-    (Galaxy) that describe how to use those images and a set of specifications
-    for those images (examples are Dockerfiles or Singularity recipes) that
-    describe how to reproduce those images in the future. We use the following
-    terminology, a "container image" describes a container as stored at rest on
-    a filesystem, a "tool" describes one of the triples as described above. In
-    practice, examples of "tools" include CWL CommandLineTools, CWL Workflows,
-    WDL workflows, and Nextflow workflows that reference containers in formats
-    such as Docker or Singularity.
-  version: 2.0.1
+    Language), WDL (Workflow Description Language), NFL (Nextflow), GXFORMAT2
+    (Galaxy) or SMK (Snakemake) that describe how to use those images and a set
+    of specifications for those images (examples are Dockerfiles or Singularity
+    recipes) that describe how to reproduce those images in the future. We use
+    the following terminology, a "container image" describes a container as
+    stored at rest on a filesystem, a "tool" describes one of the triples as
+    described above. In practice, examples of "tools" include CWL
+    CommandLineTools, CWL Workflows, WDL workflows, and Nextflow workflows that
+    reference containers in formats such as Docker or Singularity.
+  version: 2.1.0
 tags:
   - name: GA4GH
     description: >-
       A group of web resources proposed as a common standard for tool
       repositories
     externalDocs:
-      url: 'https://ga4gh.github.io/tool-registry-service-schemas/Introduction/'
+      url: 'https://ga4gh.github.io/tool-registry-service-schemas/'
 paths:
   /service-info:
-    $ref: >-
-      https://raw.githubusercontent.com/ga4gh-discovery/ga4gh-service-info/v1.0.0/service-info.yaml#/paths/~1service-info
+    get:
+      summary: >-
+        Show information about this service. It is assumed that removing this
+        endpoint from a URL will result in a valid URL to query against
+      operationId: getServiceInfo
+      tags:
+        - service-info
+      responses:
+        '200':
+          description: >-
+            A successful operation to request the service information about this
+            running service.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
   '/tools/{id}':
     get:
       summary: 'List one specific tool, acts as an anchor for self references'
@@ -44,9 +58,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Tool'
-            text/plain:
-              schema:
-                type: string
         '404':
           description: The tool can not be found.
           content:
@@ -131,11 +142,23 @@ paths:
           description: Filter tools by the name of the subclass (#/definitions/ToolClass)
           schema:
             type: string
+            enum:
+              - CommandLineTool
+              - Workflow
         - name: descriptorType
           in: query
           description: Filter tools by the name of the descriptor type
           schema:
             $ref: '#/components/schemas/DescriptorType'
+        - name: tags
+          in: query
+          description: Filter tools by registry specific tags
+          schema:
+            type: array
+            items:
+              type: string
+            minItems: 1
+          explode: false
         - name: registry
           in: query
           description: The image registry that contains the image.
@@ -217,7 +240,7 @@ paths:
       operationId: toolsIdVersionsVersionIdTypeDescriptorGet
       description: >-
         Returns the descriptor for the specified tool (examples include CWL,
-        WDL, Nextflow, or Galaxy documents).
+        WDL, Nextflow, Galaxy, or Snakemake documents).
       tags:
         - GA4GH
       parameters:
@@ -364,9 +387,8 @@ paths:
                   $ref: '#/components/schemas/ToolFile'
             application/zip:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ToolFile'
+                type: string
+                format: binary
         '404':
           description: The tool can not be output in the specified type.
           content:
@@ -483,9 +505,8 @@ components:
         type: string
   securitySchemes:
     BEARER:
-      type: apiKey
-      name: Authorization
-      in: header
+      type: http
+      scheme: bearer
   schemas:
     Checksum:
       type: object
@@ -520,6 +541,12 @@ components:
           description: >-
             Relative path of the file.  A descriptor's path can be used with the
             GA4GH .../{type}/descriptor/{relative_path} endpoint.
+        dockstore_absolute_path:
+          type: string
+          description: >-
+            Absolute path of the file.  A descriptor's path can be used with zip
+            from toolsIdVersionsVersionIdTypeFilesGet when format=zip is
+            specified
         file_type:
           type: string
           enum:
@@ -665,12 +692,36 @@ components:
           description: The type (or types) of descriptors available.
           items:
             $ref: '#/components/schemas/DescriptorType'
+        descriptor_type_version:
+          type: object
+          description: >-
+            A map providing information about the language versions used in this
+            tool. The keys should be the same values used in the
+            `descriptor_type` field, and the value should be an array of all the
+            language versions used for the given `descriptor_type`. Depending on
+            the `descriptor_type` (e.g. CWL) multiple version values may be used
+            in a single tool.
+          example: |
+            {
+              "WDL": ["1.0", "1.1"],
+              "CWL": ["v1.0.2"],
+              "NFL": ["DSL2"]
+            }
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/DescriptorTypeVersion'
         containerfile:
           type: boolean
           description: >-
             Reports if this tool has a containerfile available. (For
             Docker-based tools, this would indicate the presence of a
             Dockerfile)
+        description:
+          type: string
+          description: >-
+            The description of the tool version. This allows for documentation
+            of a specific tool version as a tool evolves over time.
         meta_version:
           type: string
           description: >-
@@ -723,6 +774,7 @@ components:
         size:
           type: integer
           description: Size of the container in bytes.
+          format: int64
         updated:
           type: string
           description: Last time the container was updated.
@@ -759,6 +811,16 @@ components:
         - WDL
         - NFL
         - GALAXY
+        - SMK
+        - SERVICE
+        - JUPYTER
+    DescriptorTypeVersion:
+      type: string
+      description: >-
+        The language version for a given descriptor type. The version should
+        correspond to the actual declared version of the descriptor. For
+        example, tools defined in CWL could have a version of `v1.0.2` whereas
+        WDL tools may have a version of `1.0` or `draft-2`
     DescriptorTypeWithPlain:
       type: string
       description: >-
@@ -769,10 +831,14 @@ components:
         - WDL
         - NFL
         - GALAXY
+        - SMK
+        - JUPYTER
         - PLAIN_CWL
         - PLAIN_WDL
         - PLAIN_NFL
         - PLAIN_GALAXY
+        - PLAIN_SMK
+        - PLAIN_JUPYTER
     FileWrapper:
       type: object
       description: >
@@ -806,6 +872,11 @@ components:
           example:
             - checksum: ea2a5db69bd20a42976838790bc29294df3af02b
               type: sha1
+        image_type:
+          description: Optionally return additional information on the type of file this is
+          oneOf:
+            - $ref: '#/components/schemas/ImageType'
+            - $ref: '#/components/schemas/DescriptorType'
         url:
           type: string
           description: >-
@@ -820,6 +891,17 @@ components:
             containerfile:
               url: >-
                 https://raw.githubusercontent.com/ICGC-TCGA-PanCancer/pcawg_delly_workflow/c83478829802b4d36374870843821abe1b625a71/delly_docker/Dockerfile
+        dockstore_self_url:
+          type: string
+          description: >-
+            Self URL to this file in the
+            toolsIdVersionsVersionIdTypeDescriptorRelativePathGet endpoint
+        dockstore_absolute_path:
+          type: string
+          description: >-
+            Absolute path of the file.  A descriptor's path can be used with zip
+            from toolsIdVersionsVersionIdTypeFilesGet when format=zip is
+            specified
     Error:
       type: object
       required:
@@ -832,3 +914,157 @@ components:
         message:
           type: string
           default: Internal Server Error
+    TRSService:
+      type: object
+      $ref: '#/components/schemas/Service'
+    ServiceType:
+      description: Type of a GA4GH service
+      type: object
+      required:
+        - group
+        - artifact
+        - version
+      properties:
+        group:
+          type: string
+          description: >-
+            Namespace in reverse domain name format. Use `org.ga4gh` for
+            implementations compliant with official GA4GH specifications. For
+            services with custom APIs not standardized by GA4GH, or
+            implementations diverging from official GA4GH specifications, use a
+            different namespace (e.g. your organization's reverse domain name).
+          example: org.ga4gh
+        artifact:
+          type: string
+          description: >-
+            Name of the API or GA4GH specification implemented. Official GA4GH
+            types should be assigned as part of standards approval process.
+            Custom artifacts are supported.
+          example: beacon
+        version:
+          type: string
+          description: >-
+            Version of the API or specification. GA4GH specifications use
+            semantic versioning.
+          example: 1.0.0
+    schemas-ServiceType:
+      description: Type of a GA4GH service
+      type: object
+      required:
+        - group
+        - artifact
+        - version
+      properties:
+        group:
+          type: string
+          description: >-
+            Namespace in reverse domain name format. Use `org.ga4gh` for
+            implementations compliant with official GA4GH specifications. For
+            services with custom APIs not standardized by GA4GH, or
+            implementations diverging from official GA4GH specifications, use a
+            different namespace (e.g. your organization's reverse domain name).
+          example: org.ga4gh
+        artifact:
+          type: string
+          description: >-
+            Name of the API or GA4GH specification implemented. Official GA4GH
+            types should be assigned as part of standards approval process.
+            Custom artifacts are supported.
+          example: beacon
+        version:
+          type: string
+          description: >-
+            Version of the API or specification. GA4GH specifications use
+            semantic versioning.
+          example: 1.0.0
+    Service:
+      description: GA4GH service
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - organization
+        - version
+      properties:
+        id:
+          type: string
+          description: >-
+            Unique ID of this service. Reverse domain name notation is
+            recommended, though not required. The identifier should attempt to
+            be globally unique so it can be used in downstream aggregator
+            services e.g. Service Registry.
+          example: org.ga4gh.myservice
+        name:
+          type: string
+          description: Name of this service. Should be human readable.
+          example: My project
+        type:
+          $ref: '#/components/schemas/schemas-ServiceType'
+        description:
+          type: string
+          description: >-
+            Description of the service. Should be human readable and provide
+            information about the service.
+          example: This service provides...
+        organization:
+          type: object
+          description: Organization providing the service
+          required:
+            - name
+            - url
+          properties:
+            name:
+              type: string
+              description: Name of the organization responsible for the service
+              example: My organization
+            url:
+              type: string
+              format: uri
+              description: URL of the website of the organization (RFC 3986 format)
+              example: 'https://example.com'
+        contactUrl:
+          type: string
+          format: uri
+          description: >-
+            URL of the contact for the provider of this service, e.g. a link to
+            a contact form (RFC 3986 format), or an email (RFC 2368 format).
+          example: 'mailto:support@example.com'
+        documentationUrl:
+          type: string
+          format: uri
+          description: >-
+            URL of the documentation of this service (RFC 3986 format). This
+            should help someone learn how to use your service, including any
+            specifics required to access data, e.g. authentication.
+          example: 'https://docs.myservice.example.com'
+        createdAt:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp describing when the service was first deployed and
+            available (RFC 3339 format)
+          example: '2019-06-04T12:58:19Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp describing when the service was last updated (RFC 3339
+            format)
+          example: '2019-06-04T12:58:19Z'
+        environment:
+          type: string
+          description: >-
+            Environment the service is running in. Use this to distinguish
+            between production, development and testing/staging deployments.
+            Suggested values are prod, test, dev, staging. However this is
+            advised and not enforced.
+          example: test
+        version:
+          type: string
+          description: >-
+            Version of the service being described. Semantic versioning is
+            recommended, but other identifiers, such as dates or commit hashes,
+            are also allowed. The version should be changed whenever the service
+            is updated.
+          example: 1.0.0

@@ -12,11 +12,33 @@ title: Table of Contents
 
 #### Tags: 
 
-2.0.1: 
+2.0.7-beta.3-galaxy-alias: 
 
-2.0.1-beta.0: 
-[openapi swagger-ui](swagger-ui?url=../preview/2.0.1-beta.0/openapi.yaml)
-[ReDoc](preview/2.0.1-beta.0/docs/index.html)
+2.0.7-beta.1-notebooks: 
+
+2.0.6: 
+
+2.0.5_GALAXY: 
+
+2.0.4_GALAXY: 
+
+2.0.3_GALAXY: 
+
+2.0.2_GALAXY: 
+
+2.0.1_GALAXY: 
+
+GALAXY2.0.1: 
+
+2.0.0_galaxy_1: 
+
+2.0.0_galaxy: 
+
+2.0.0_gxformat2: 
+
+2.0.0_galaxy-1: 
+
+2.0.0-beta.5_gxformat2: 
 
 2.0.0: 
 [swagger swagger-ui](swagger-ui?url=../preview/2.0.0/docs/web_deploy/swagger.json)
@@ -27,9 +49,6 @@ title: Table of Contents
 [swagger swagger-ui](swagger-ui?url=../preview/2.0.0-beta.5/docs/web_deploy/swagger.json)
 [html5](preview/2.0.0-beta.5/docs/html5/index.html)
 [pdf](preview/2.0.0-beta.5/docs/pdf/index.pdf)
-
-2.0.0-beta.4: 
-[swagger swagger-ui](swagger-ui?url=../preview/2.0.0-beta.4/docs/web_deploy/swagger.json)
 
 2.0.0-beta.3: 
 [swagger swagger-ui](swagger-ui?url=../preview/2.0.0-beta.3/docs/web_deploy/swagger.json)
@@ -52,9 +71,11 @@ title: Table of Contents
 0.1: 
 [swagger swagger-ui](swagger-ui?url=../preview/0.1/docs/web_deploy/swagger.json)
 
-2.0.2: 
+2.0.0-beta.6-smk-gxformat2: 
 
-v2.0.1: 
+2.0.1-beta.1-smk-galaxy: 
+
+2.0.7-beta.2-trs-extension: 
 
 #### Other branches:
 
