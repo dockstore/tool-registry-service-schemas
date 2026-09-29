@@ -35,7 +35,7 @@ paths:
         '200':
           description: >-
             A successful operation to request the service information about this
-            running service.
+            running service.'
           content:
             application/json:
               schema:
@@ -142,6 +142,9 @@ paths:
           description: Filter tools by the name of the subclass (#/definitions/ToolClass)
           schema:
             type: string
+            enum:
+              - CommandLineTool
+              - Workflow
         - name: descriptorType
           in: query
           description: Filter tools by the name of the descriptor type
@@ -538,6 +541,12 @@ components:
           description: >-
             Relative path of the file.  A descriptor's path can be used with the
             GA4GH .../{type}/descriptor/{relative_path} endpoint.
+        dockstore_absolute_path:
+          type: string
+          description: >-
+            Absolute path of the file.  A descriptor's path can be used with zip
+            from toolsIdVersionsVersionIdTypeFilesGet when format=zip is
+            specified
         file_type:
           type: string
           enum:
@@ -765,6 +774,7 @@ components:
         size:
           type: integer
           description: Size of the container in bytes.
+          format: int64
         updated:
           type: string
           description: Last time the container was updated.
@@ -802,6 +812,8 @@ components:
         - NFL
         - GALAXY
         - SMK
+        - SERVICE
+        - JUPYTER
     DescriptorTypeVersion:
       type: string
       description: >-
@@ -820,11 +832,13 @@ components:
         - NFL
         - GALAXY
         - SMK
+        - JUPYTER
         - PLAIN_CWL
         - PLAIN_WDL
         - PLAIN_NFL
         - PLAIN_GALAXY
         - PLAIN_SMK
+        - PLAIN_JUPYTER
     FileWrapper:
       type: object
       description: >
@@ -877,6 +891,17 @@ components:
             containerfile:
               url: >-
                 https://raw.githubusercontent.com/ICGC-TCGA-PanCancer/pcawg_delly_workflow/c83478829802b4d36374870843821abe1b625a71/delly_docker/Dockerfile
+        dockstore_self_url:
+          type: string
+          description: >-
+            Self URL to this file in the
+            toolsIdVersionsVersionIdTypeDescriptorRelativePathGet endpoint
+        dockstore_absolute_path:
+          type: string
+          description: >-
+            Absolute path of the file.  A descriptor's path can be used with zip
+            from toolsIdVersionsVersionIdTypeFilesGet when format=zip is
+            specified
     Error:
       type: object
       required:
@@ -889,7 +914,40 @@ components:
         message:
           type: string
           default: Internal Server Error
+    TRSService:
+      type: object
+      $ref: '#/components/schemas/Service'
     ServiceType:
+      description: Type of a GA4GH service
+      type: object
+      required:
+        - group
+        - artifact
+        - version
+      properties:
+        group:
+          type: string
+          description: >-
+            Namespace in reverse domain name format. Use `org.ga4gh` for
+            implementations compliant with official GA4GH specifications. For
+            services with custom APIs not standardized by GA4GH, or
+            implementations diverging from official GA4GH specifications, use a
+            different namespace (e.g. your organization's reverse domain name).
+          example: org.ga4gh
+        artifact:
+          type: string
+          description: >-
+            Name of the API or GA4GH specification implemented. Official GA4GH
+            types should be assigned as part of standards approval process.
+            Custom artifacts are supported.
+          example: beacon
+        version:
+          type: string
+          description: >-
+            Version of the API or specification. GA4GH specifications use
+            semantic versioning.
+          example: 1.0.0
+    schemas-ServiceType:
       description: Type of a GA4GH service
       type: object
       required:
@@ -942,7 +1000,7 @@ components:
           description: Name of this service. Should be human readable.
           example: My project
         type:
-          $ref: '#/components/schemas/ServiceType'
+          $ref: '#/components/schemas/schemas-ServiceType'
         description:
           type: string
           description: >-
