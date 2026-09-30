@@ -603,8 +603,10 @@
               },
               "application/zip": {
                 "schema": {
-                  "type": "string",
-                  "format": "binary"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ToolFile"
+                  }
                 }
               }
             }
@@ -1093,6 +1095,7 @@
           "PLAIN_WDL",
           "PLAIN_NFL",
           "PLAIN_GALAXY",
+          "PLAIN_GXFORMAT2",
           "PLAIN_SMK",
           "PLAIN_JUPYTER"
         ]
