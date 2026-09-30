@@ -884,7 +884,6 @@ components:
         - PLAIN_WDL
         - PLAIN_NFL
         - PLAIN_GALAXY
-        - PLAIN_GXFORMAT2
         - PLAIN_SMK
         - PLAIN_JUPYTER
     FileWrapper:
