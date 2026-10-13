@@ -12,6 +12,8 @@ title: Table of Contents
 
 #### Tags: 
 
+2.0.7-beta.4-pagination: 
+
 2.0.7-beta.3-galaxy-alias: 
 
 2.0.7-beta.1-notebooks: 
